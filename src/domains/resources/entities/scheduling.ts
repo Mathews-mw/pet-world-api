@@ -1,4 +1,6 @@
 import { Entity } from '@/core/entities/entity';
+import { UniqueEntityId } from '@/core/entities/unique-entity-id';
+import { Optional } from '@/core/types/optional';
 
 export const animalType = ['DOG', 'CAT'] as const;
 export const schedulingStatus = ['SCHEDULED', 'IN_PROGRESS', 'CANCELED', 'COMPLETED'] as const;
@@ -7,22 +9,21 @@ export type IPetType = (typeof animalType)[number];
 export type ISchedulingStatus = (typeof schedulingStatus)[number];
 
 export interface ISchedulingProps {
-	owner: string;
+	clientId: UniqueEntityId;
 	petName: string;
 	petType: IPetType;
-	ownerPhone: string;
-	serviceDescription: string;
+	clientPhone: string;
+	serviceCod: string;
+	description?: string | null;
 	status: ISchedulingStatus;
 	date: Date;
+	registerAt: Date;
+	updatedAt?: Date | null;
 }
 
 export class Scheduling extends Entity<ISchedulingProps> {
-	get owner() {
-		return this.props.owner;
-	}
-
-	set owner(owner: string) {
-		this.props.owner = owner;
+	get clientId() {
+		return this.props.clientId;
 	}
 
 	get petName() {
@@ -31,6 +32,7 @@ export class Scheduling extends Entity<ISchedulingProps> {
 
 	set petName(petName: string) {
 		this.props.petName = petName;
+		this.touch();
 	}
 
 	get petType() {
@@ -39,22 +41,34 @@ export class Scheduling extends Entity<ISchedulingProps> {
 
 	set petType(petType: IPetType) {
 		this.props.petType = petType;
+		this.touch();
 	}
 
-	get ownerPhone() {
-		return this.props.ownerPhone;
+	get clientPhone() {
+		return this.props.clientPhone;
 	}
 
-	set ownerPhone(ownerPhone: string) {
-		this.props.ownerPhone = ownerPhone;
+	set clientPhone(clientPhone: string) {
+		this.props.clientPhone = clientPhone;
+		this.touch();
 	}
 
-	get serviceDescription() {
-		return this.props.serviceDescription;
+	get serviceCod() {
+		return this.props.serviceCod;
 	}
 
-	set serviceDescription(serviceDescription: string) {
-		this.props.serviceDescription = serviceDescription;
+	set serviceCod(serviceCod: string) {
+		this.props.serviceCod = serviceCod;
+		this.touch();
+	}
+
+	get description(): string | null | undefined {
+		return this.props.description;
+	}
+
+	set description(description: string | null | undefined) {
+		this.props.description = description;
+		this.touch();
 	}
 
 	get status() {
@@ -63,6 +77,7 @@ export class Scheduling extends Entity<ISchedulingProps> {
 
 	set status(status: ISchedulingStatus) {
 		this.props.status = status;
+		this.touch();
 	}
 
 	get date() {
@@ -71,5 +86,33 @@ export class Scheduling extends Entity<ISchedulingProps> {
 
 	set date(date: Date) {
 		this.props.date = date;
+		this.touch();
+	}
+
+	get registerAt() {
+		return this.props.registerAt;
+	}
+
+	get updatedAt() {
+		return this.props.updatedAt;
+	}
+
+	private touch() {
+		this.props.updatedAt = new Date();
+	}
+
+	static create(
+		props: Optional<ISchedulingProps, 'description' | 'registerAt' | 'updatedAt'>,
+		id?: UniqueEntityId
+	) {
+		const scheduling = new Scheduling(
+			{
+				...props,
+				registerAt: new Date(),
+			},
+			id
+		);
+
+		return scheduling;
 	}
 }

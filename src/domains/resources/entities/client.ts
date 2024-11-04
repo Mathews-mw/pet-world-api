@@ -53,7 +53,7 @@ export class Client extends Entity<IClient> {
 		return this.props.phone;
 	}
 
-	set phone(phone: string) {
+	set phone(phone: string | null | undefined) {
 		this.props.phone = phone;
 		this.touch();
 	}
